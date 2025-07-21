@@ -4,13 +4,22 @@ import (
     "context"
     "errors"
     "time"
-    
+    "os"
+    "log"
     "github.com/golang-jwt/jwt/v5"
     "golang.org/x/crypto/bcrypt"
     "reflection-app/internal/models"
 )
 
-var jwtSecret = []byte("your-super-secret-jwt-key-change-this-in-production")
+var jwtSecret []byte
+
+func init() {
+    jwtSecretStr := os.Getenv("JWT_SECRET")
+    if jwtSecretStr == "" {
+        log.Fatal("JWT_SECRET environment variable is not set!")
+    }
+    jwtSecret = []byte(jwtSecretStr)
+}
 
 // GetUserIDFromContext extracts user ID from request context
 func GetUserIDFromContext(ctx context.Context) (int, error) {

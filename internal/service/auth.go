@@ -3,6 +3,8 @@ package service
 import (
     "errors"
     "time"
+    "os"
+    "log"
     "golang.org/x/crypto/bcrypt"
     "github.com/golang-jwt/jwt/v5"
     "reflection-app/internal/models"
@@ -15,8 +17,11 @@ type AuthService struct {
 }
 
 func NewAuthService(userRepo *repository.UserRepository) *AuthService {
-    // In production, get this from environment variable
-    jwtSecret := []byte("your-secret-key") // TODO: Move to environment variable
+    jwtSecretStr := os.Getenv("JWT_SECRET")
+    if jwtSecretStr == "" {
+        log.Fatal("JWT_SECRET environment variable is not set!")
+    }
+    jwtSecret := []byte(jwtSecretStr)
     return &AuthService{
         userRepo:  userRepo,
         jwtSecret: jwtSecret,
