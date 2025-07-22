@@ -22,6 +22,15 @@ func isDevelopment() bool {
     return os.Getenv("ENV") != "production"
 }
 
+// Helper to get cookie settings based on environment
+func getCookieSettings() (http.SameSite, bool) {
+    env := os.Getenv("ENV")
+    if env == "production" {
+        return http.SameSiteNoneMode, true
+    }
+    return http.SameSiteLaxMode, false
+}
+
 // Register handles user registration
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
     var req models.RegisterRequest
@@ -44,13 +53,14 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
     }
     
     // Set secure HTTP-only cookie
+    sameSite, secure := getCookieSettings()
     http.SetCookie(w, &http.Cookie{
         Name:     "auth_token",
         Value:    response.Token,
         Path:     "/",
         HttpOnly: true,
-        Secure:   !isDevelopment(), // Only secure in production
-        SameSite: http.SameSiteStrictMode,
+        Secure:   secure,
+        SameSite: sameSite,
         MaxAge:   86400, // 24 hours
     })
     
@@ -62,8 +72,8 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
         Value:    encodedUserData,
         Path:     "/",
         HttpOnly: false, // Allow JavaScript access for user info
-        Secure:   !isDevelopment(), // Only secure in production
-        SameSite: http.SameSiteStrictMode,
+        Secure:   secure,
+        SameSite: sameSite,
         MaxAge:   86400, // 24 hours
     })
     
@@ -97,13 +107,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
     }
     
     // Set secure HTTP-only cookie
+    sameSite, secure := getCookieSettings()
     http.SetCookie(w, &http.Cookie{
         Name:     "auth_token",
         Value:    response.Token,
         Path:     "/",
         HttpOnly: true,
-        Secure:   !isDevelopment(), // Only secure in production
-        SameSite: http.SameSiteStrictMode,
+        Secure:   secure,
+        SameSite: sameSite,
         MaxAge:   86400, // 24 hours
     })
     
@@ -115,8 +126,8 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
         Value:    encodedUserData,
         Path:     "/",
         HttpOnly: false, // Allow JavaScript access for user info
-        Secure:   !isDevelopment(), // Only secure in production
-        SameSite: http.SameSiteStrictMode,
+        Secure:   secure,
+        SameSite: sameSite,
         MaxAge:   86400, // 24 hours
     })
     
@@ -130,13 +141,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 // Logout handles user logout
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
     // Clear auth token cookie
+    sameSite, secure := getCookieSettings()
     http.SetCookie(w, &http.Cookie{
         Name:     "auth_token",
         Value:    "",
         Path:     "/",
         HttpOnly: true,
-        Secure:   !isDevelopment(),
-        SameSite: http.SameSiteStrictMode,
+        Secure:   secure,
+        SameSite: sameSite,
         MaxAge:   -1, // Delete the cookie
     })
     
@@ -146,8 +158,8 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
         Value:    "",
         Path:     "/",
         HttpOnly: false,
-        Secure:   !isDevelopment(),
-        SameSite: http.SameSiteStrictMode,
+        Secure:   secure,
+        SameSite: sameSite,
         MaxAge:   -1, // Delete the cookie
     })
     
