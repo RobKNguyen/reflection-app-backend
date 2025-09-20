@@ -11,6 +11,7 @@ import (
     "reflection-app/internal/handlers"
     "reflection-app/internal/repository"
     "reflection-app/internal/service"
+    "reflection-app/internal/test"
 )
 
 func main() {
@@ -82,6 +83,7 @@ func main() {
 	categoryHandler := handlers.NewCategoryHandler(categoryService)  // Add this
 	friendshipHandler := handlers.NewFriendshipHandler(friendshipService)
 	reactionHandler := handlers.NewReactionHandler(reactionService)
+    testHandler := test.NewTestHandler()
     
     // Setup routes
     r := mux.NewRouter()
@@ -158,6 +160,10 @@ func main() {
     api.HandleFunc("/reactions/counts", reactionHandler.GetReactionCountsForReflection).Methods("GET")
     api.HandleFunc("/reactions/user", reactionHandler.GetUserReactionForReflection).Methods("GET")
     api.HandleFunc("/reactions/prompts", reactionHandler.GetReactionPrompts).Methods("GET")
+
+    // Test routes
+    api.HandleFunc("/test/sql", testHandler.SQLTest).Methods("GET", "POST")
+    api.HandleFunc("/test/echo", testHandler.Echo).Methods("GET", "POST")
     
     // Health check endpoint
     api.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
