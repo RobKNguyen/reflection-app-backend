@@ -164,6 +164,7 @@ func main() {
     // Test routes
     api.HandleFunc("/test/sql", testHandler.SQLTest).Methods("GET", "POST")
     api.HandleFunc("/test/echo", testHandler.Echo).Methods("GET", "POST")
+    api.HandleFunc("/test/create", testHandler.Create).Methods("POST")
     
     // Health check endpoint
     api.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
